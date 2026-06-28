@@ -23,7 +23,7 @@ export function BottomNav() {
           className={cn('flex flex-1 flex-col items-center gap-1 py-1.5 rounded-xl transition-colors',
             screen === id ? 'text-primary' : 'text-muted-foreground')}>
           <Icon className="h-5 w-5" strokeWidth={screen===id ? 2.5 : 2}/>
-          <span className={cn('text-[10px] font-pixel uppercase tracking-wide', screen===id ? 'text-primary' : 'text-muted-foreground')}>
+          <span className={cn('text-[8px] font-pixel uppercase tracking-[0.05em]', screen===id ? 'text-primary' : 'text-muted-foreground')}>
             {label}
           </span>
         </button>

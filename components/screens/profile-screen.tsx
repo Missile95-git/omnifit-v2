@@ -12,7 +12,7 @@ export function ProfileScreen() {
 
 
   return (
-    <div className="flex flex-col gap-4 px-4 pb-28 pt-5">
+    <div className="flex flex-col gap-4 px-4 pb-28 pt-safe">
       <div>
         <p className="font-pixel text-[10px] uppercase tracking-widest text-primary">Account</p>
         <h1 className="mt-1 text-2xl font-bold tracking-tight">Profile</h1>

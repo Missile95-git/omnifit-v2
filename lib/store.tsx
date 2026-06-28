@@ -71,6 +71,8 @@ type State = {
 
   // UI
   screen: 'login' | 'home' | 'routine' | 'battle' | 'progress' | 'profile'
+  lastCheckedDate: string | null
+  lastWorkoutDate: string | null
 }
 
 type Action =
@@ -82,6 +84,7 @@ type Action =
   | { type: 'COMPLETE_WORKOUT' }
   | { type: 'SKIP_DAY' }
   | { type: 'TOGGLE_DIET'; date: string; item: string }
+  | { type: 'CHECK_SKIPPED_DAY' }
   | { type: 'UPDATE_CHARACTER'; character: CharacterOptions }
   | { type: 'LOAD'; payload: Partial<State> }
 
@@ -188,6 +191,8 @@ const initialState: State = {
   weekActivity: [false,false,false,false,false,false,false],
   dietChecks: {},
   screen: 'login',
+  lastCheckedDate: null,
+  lastWorkoutDate: null,
 }
 
 function reducer(state: State, action: Action): State {
@@ -214,7 +219,7 @@ function reducer(state: State, action: Action): State {
         }
       }
     }
-    case 'COMPLETE_WORKOUT': {
+    case 'COMPLETE_WORKOUT': { // auto triggered after finishing routine
       const newBossHp = clamp(state.bossHp - BOSS_DAMAGE, 0, state.bossMaxHp)
       const defeated = newBossHp <= 0
       const newLevel = defeated ? state.level + 1 : state.level
@@ -236,6 +241,7 @@ function reducer(state: State, action: Action): State {
         playerHp: clamp(state.playerHp + 6),
         weekActivity: newWeek,
         lastEvent: { id: eventId++, kind: 'hit-boss', amount: BOSS_DAMAGE, label: defeated ? 'BOSS DEFEATED!' : `-${BOSS_DAMAGE} HP` },
+        lastWorkoutDate: todayStr(),
         log: [
           defeated ? `You defeated ${state.bossName}! Level ${newLevel} boss emerges!` : `Workout complete! Dealt ${BOSS_DAMAGE} damage to ${state.bossName}.`,
           ...state.log
@@ -251,6 +257,30 @@ function reducer(state: State, action: Action): State {
         lastEvent: { id: eventId++, kind: 'hit-player', amount: PLAYER_DAMAGE, label: `-${PLAYER_DAMAGE} HP` },
         log: [`Day skipped. You took ${PLAYER_DAMAGE} damage and lost your streak.`, ...state.log].slice(0, 8),
       }
+    }
+    case 'CHECK_SKIPPED_DAY': {
+      const today = todayStr()
+      if (state.lastCheckedDate === today) return state
+      // Check yesterday — skip Sunday (0) rest day
+      const yesterday = new Date()
+      yesterday.setDate(yesterday.getDate() - 1)
+      const yesterdayDay = yesterday.getDay() // 0=Sun
+      const yesterdayStr = yesterday.toISOString().slice(0,10)
+      // If yesterday was not Sunday, and we didn't work out, take damage
+      const workedOutYesterday = state.lastWorkoutDate === yesterdayStr
+      const yesterdayWasRest = yesterdayDay === 0
+      if (!workedOutYesterday && !yesterdayWasRest && state.lastCheckedDate !== null) {
+        const newHp = clamp(state.playerHp - PLAYER_DAMAGE)
+        return {
+          ...state,
+          lastCheckedDate: today,
+          playerHp: newHp,
+          streak: 0,
+          lastEvent: { id: eventId++, kind: 'hit-player', amount: PLAYER_DAMAGE, label: `-${PLAYER_DAMAGE} HP` },
+          log: [`Day skipped! You took ${PLAYER_DAMAGE} damage automatically.`, ...state.log].slice(0, 8),
+        }
+      }
+      return { ...state, lastCheckedDate: today }
     }
     case 'TOGGLE_DIET': {
       const { date, item } = action
@@ -278,6 +308,7 @@ type Store = State & {
   setDay: (day: 'push' | 'pull' | 'legs') => void
   updateCharacter: (c: CharacterOptions) => void
   getLastLog: (exId: string) => SetLog[] | null
+  checkSkippedDay: () => void
 }
 
 const StoreContext = createContext<Store | null>(null)
@@ -318,6 +349,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     toggleDiet: (item) => dispatch({ type: 'TOGGLE_DIET', date: today, item }),
     updateSet: (exId, i, field, value) => dispatch({ type: 'UPDATE_SET', date: today, exId, i, field, value }),
     updateCharacter: (character) => dispatch({ type: 'UPDATE_CHARACTER', character }),
+    checkSkippedDay: () => dispatch({ type: 'CHECK_SKIPPED_DAY' }),
     getLastLog: (exId) => {
       const dates = Object.keys(state.sessionLogs).sort().reverse()
       for (const d of dates) {

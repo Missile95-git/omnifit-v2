@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect } from 'react'
 import { StoreProvider, useStore } from '@/lib/store'
 import { BottomNav } from '@/components/bottom-nav'
 import { LoginScreen } from '@/components/screens/login-screen'
@@ -10,7 +11,11 @@ import { ProgressScreen } from '@/components/screens/progress-screen'
 import { ProfileScreen } from '@/components/screens/profile-screen'
 
 function App() {
-  const { userName, screen } = useStore()
+  const { userName, screen, checkSkippedDay } = useStore()
+
+  useEffect(() => {
+    checkSkippedDay()
+  }, [])
 
   if (!userName) return <LoginScreen />
 

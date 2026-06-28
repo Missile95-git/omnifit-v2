@@ -37,6 +37,11 @@ html, body {
   overscroll-behavior: none;
 }
 
+/* Safe area for iPhone notch */
+.pt-safe {
+  padding-top: max(1.25rem, env(safe-area-inset-top));
+}
+
 .font-pixel { font-family: 'Press Start 2P', monospace; }
 .font-mono  { font-family: 'Inter', monospace; }
 

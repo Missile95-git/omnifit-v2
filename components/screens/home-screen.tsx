@@ -24,7 +24,7 @@ export function HomeScreen() {
   const dietDone = DIET_ITEMS.filter(d => todayDiet[d.id]).length
 
   return (
-    <div className="flex flex-col gap-4 px-4 pb-28 pt-5">
+    <div className="flex flex-col gap-4 px-4 pb-28 pt-safe">
       {/* Header */}
       <header className="flex items-center justify-between">
         <div className="flex items-center gap-3">

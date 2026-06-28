@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { RotateCcw, Swords, Play } from 'lucide-react'
 import { useStore, ROUTINE, DB_WEIGHTS } from '@/lib/store'
 import { cn } from '@/lib/utils'
@@ -19,6 +19,19 @@ export function RoutineScreen() {
   const allDone = doneSets === totalSets
   const pct = totalSets ? Math.round((doneSets/totalSets)*100) : 0
 
+  // Auto fire boss attack when all sets are done
+  const [autofired, setAutofired] = useState(false)
+  useEffect(() => {
+    if (allDone && !autofired && doneSets > 0) {
+      setAutofired(true)
+      setTimeout(() => {
+        completeWorkout()
+        setScreen('battle')
+      }, 800)
+    }
+    if (!allDone) setAutofired(false)
+  }, [allDone])
+
   function getSetLog(exId: string, sets: number) {
     if (todayLog[exId]?.length) return todayLog[exId]
     const last = getLastLog(exId)
@@ -32,7 +45,7 @@ export function RoutineScreen() {
   }
 
   return (
-    <div className="flex flex-col gap-4 px-4 pb-28 pt-5">
+    <div className="flex flex-col gap-4 px-4 pb-28 pt-safe">
       <header className="flex items-center justify-between">
         <div>
           <p className="font-pixel text-[10px] uppercase tracking-widest text-primary">{day.label} Day</p>

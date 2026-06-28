@@ -82,36 +82,26 @@ export function BattleScreen() {
         <div className="relative flex min-h-[220px] items-end justify-between px-6 pb-10 pt-2">
           <div className="absolute inset-x-4 bottom-8 h-px bg-primary/20" aria-hidden="true"/>
 
-          {/* Player character - SVG */}
+          {/* Player character - pixel art */}
           <div className="relative flex flex-col items-center">
             {popup?.kind === 'hit-player' && (
-              <span className="pointer-events-none absolute -top-6 z-10 font-pixel text-[10px] font-bold text-primary animate-bob">
+              <span className="pointer-events-none absolute -top-8 z-10 font-pixel text-[10px] font-bold text-primary">
                 {popup.text}
               </span>
             )}
             <div className={cn('animate-bob', playerHit && 'animate-flash animate-hit')}>
-              <svg width="48" height="64" viewBox="0 0 40 54" className="pixelated">
-                <rect x="14" y="0" width="12" height="10" rx="2" fill={character.hairColor}/>
-                <rect x="12" y="6" width="16" height="14" rx="2" fill={character.skinTone}/>
-                <rect x="15" y="10" width="3" height="3" fill="#0a0a0a"/>
-                <rect x="22" y="10" width="3" height="3" fill="#0a0a0a"/>
-                <rect x="15" y="16" width="10" height="2" fill="#0a0a0a"/>
-                <rect x="10" y="20" width="20" height="18" rx="2" fill={character.suitColor}/>
-                <rect x="3" y="20" width="8" height="14" rx="2" fill={character.suitColor}/>
-                <rect x="29" y="20" width="8" height="14" rx="2" fill={character.suitColor}/>
-                <rect x="12" y="38" width="7" height="10" rx="1" fill="#1a1a1a"/>
-                <rect x="21" y="38" width="7" height="10" rx="1" fill="#1a1a1a"/>
-                <rect x="3" y="34" width="8" height="4" rx="1" fill="#e8ff47" opacity="0.6"/>
-              </svg>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/hero.png" alt="Your character" width={80} height={100}
+                className="pixelated" style={{ imageRendering:'pixelated', objectFit:'contain' }}/>
             </div>
           </div>
 
           <span className="font-pixel text-[10px] text-muted-foreground/60 self-center" aria-hidden="true">VS</span>
 
-          {/* Boss - actual image, scaled by level */}
+          {/* Boss - scaled bigger than hero */}
           <div className="relative flex flex-col items-center">
             {popup?.kind === 'hit-boss' && (
-              <span className="pointer-events-none absolute -top-6 z-10 font-pixel text-[10px] font-bold text-[var(--hp-boss)] animate-bob">
+              <span className="pointer-events-none absolute -top-8 z-10 font-pixel text-[10px] font-bold text-[var(--hp-boss)]">
                 {popup.text}
               </span>
             )}
@@ -119,8 +109,8 @@ export function BattleScreen() {
               <div className={cn(bossHit && 'animate-flash animate-hit')}
                 style={{ transform: `scale(${bossScale})`, transformOrigin:'bottom center', transition:'transform 0.5s ease' }}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/boss.jpg" alt="Boss" width={80} height={80}
-                  className="pixelated rounded-sm" style={{ imageRendering:'pixelated' }}/>
+                <img src="/boss.png" alt="Boss" width={120} height={140}
+                  className="pixelated" style={{ imageRendering:'pixelated', objectFit:'contain' }}/>
               </div>
             </div>
             <p className="font-pixel text-[8px] text-[var(--hp-boss)] mt-2 uppercase">Lv.{level}</p>

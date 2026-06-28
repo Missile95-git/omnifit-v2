@@ -47,18 +47,9 @@ export function HomeScreen() {
       <section className="relative overflow-hidden rounded-2xl border border-border bg-card p-4">
         <div className="scanlines absolute inset-0 opacity-60" aria-hidden="true"/>
         <div className="relative flex items-center gap-4">
-          <div className="rounded-xl border border-border bg-background p-3 flex-shrink-0">
-            <svg width="40" height="40" viewBox="0 0 40 40" className="pixelated">
-              <rect x="14" y="2" width="12" height="10" rx="2" fill={character.hairColor}/>
-              <rect x="12" y="8" width="16" height="12" rx="2" fill={character.skinTone}/>
-              <rect x="15" y="12" width="3" height="3" fill="#0a0a0a"/>
-              <rect x="22" y="12" width="3" height="3" fill="#0a0a0a"/>
-              <rect x="10" y="20" width="20" height="14" rx="2" fill={character.suitColor}/>
-              <rect x="4" y="20" width="7" height="12" rx="2" fill={character.suitColor}/>
-              <rect x="29" y="20" width="7" height="12" rx="2" fill={character.suitColor}/>
-              <rect x="12" y="34" width="7" height="6" rx="1" fill="#1a1a1a"/>
-              <rect x="21" y="34" width="7" height="6" rx="1" fill="#1a1a1a"/>
-            </svg>
+          <div className="rounded-xl border border-border bg-background p-2 flex-shrink-0">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/hero.png" alt="Your character" width={44} height={54} className="pixelated" style={{ imageRendering:'pixelated' }}/>
           </div>
           <div className="flex-1">
             <div className="flex items-baseline justify-between">

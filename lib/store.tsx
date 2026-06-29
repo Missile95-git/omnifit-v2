@@ -73,6 +73,7 @@ type State = {
   screen: 'login' | 'home' | 'routine' | 'battle' | 'progress' | 'profile'
   lastCheckedDate: string | null
   lastWorkoutDate: string | null
+  lastCompletedDate: string | null
 }
 
 type Action =
@@ -193,6 +194,7 @@ const initialState: State = {
   screen: 'login',
   lastCheckedDate: null,
   lastWorkoutDate: null,
+  lastCompletedDate: null,
 }
 
 function reducer(state: State, action: Action): State {
@@ -219,7 +221,9 @@ function reducer(state: State, action: Action): State {
         }
       }
     }
-    case 'COMPLETE_WORKOUT': { // auto triggered after finishing routine
+    case 'COMPLETE_WORKOUT': {
+      // Only fire once per day
+      if (state.lastCompletedDate === todayStr()) return state
       const newBossHp = clamp(state.bossHp - BOSS_DAMAGE, 0, state.bossMaxHp)
       const defeated = newBossHp <= 0
       const newLevel = defeated ? state.level + 1 : state.level
@@ -242,6 +246,7 @@ function reducer(state: State, action: Action): State {
         weekActivity: newWeek,
         lastEvent: { id: eventId++, kind: 'hit-boss', amount: BOSS_DAMAGE, label: defeated ? 'BOSS DEFEATED!' : `-${BOSS_DAMAGE} HP` },
         lastWorkoutDate: todayStr(),
+        lastCompletedDate: todayStr(),
         log: [
           defeated ? `You defeated ${state.bossName}! Level ${newLevel} boss emerges!` : `Workout complete! Dealt ${BOSS_DAMAGE} damage to ${state.bossName}.`,
           ...state.log
@@ -309,6 +314,7 @@ type Store = State & {
   updateCharacter: (c: CharacterOptions) => void
   getLastLog: (exId: string) => SetLog[] | null
   checkSkippedDay: () => void
+  hasCompletedToday: boolean
 }
 
 const StoreContext = createContext<Store | null>(null)
@@ -350,6 +356,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     updateSet: (exId, i, field, value) => dispatch({ type: 'UPDATE_SET', date: today, exId, i, field, value }),
     updateCharacter: (character) => dispatch({ type: 'UPDATE_CHARACTER', character }),
     checkSkippedDay: () => dispatch({ type: 'CHECK_SKIPPED_DAY' }),
+    hasCompletedToday: state.lastCompletedDate === todayStr(),
     getLastLog: (exId) => {
       const dates = Object.keys(state.sessionLogs).sort().reverse()
       for (const d of dates) {

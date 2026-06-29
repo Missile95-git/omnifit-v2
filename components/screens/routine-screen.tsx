@@ -6,7 +6,7 @@ import { useStore, ROUTINE, DB_WEIGHTS } from '@/lib/store'
 import { cn } from '@/lib/utils'
 
 export function RoutineScreen() {
-  const { activeDay, setDay, sessionLogs, today, updateSet, getLastLog, completeWorkout, setScreen } = useStore()
+  const { activeDay, setDay, sessionLogs, today, updateSet, getLastLog, completeWorkout, setScreen, hasCompletedToday } = useStore()
   const [openCards, setOpenCards] = useState<Record<string,boolean>>({})
   const day = ROUTINE[activeDay]
   const todayLog = sessionLogs[today] || {}
@@ -19,17 +19,14 @@ export function RoutineScreen() {
   const allDone = doneSets === totalSets
   const pct = totalSets ? Math.round((doneSets/totalSets)*100) : 0
 
-  // Auto fire boss attack when all sets are done
-  const [autofired, setAutofired] = useState(false)
+  // Auto fire boss attack when all sets done — guarded by store so only fires once per day
   useEffect(() => {
-    if (allDone && !autofired && doneSets > 0) {
-      setAutofired(true)
+    if (allDone && doneSets > 0 && !hasCompletedToday) {
       setTimeout(() => {
         completeWorkout()
         setScreen('battle')
       }, 800)
     }
-    if (!allDone) setAutofired(false)
   }, [allDone])
 
   function getSetLog(exId: string, sets: number) {

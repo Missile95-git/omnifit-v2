@@ -159,7 +159,8 @@ function clamp(n: number, min = 0, max = 100) {
 
 function getBossForLevel(level: number) {
   const name = BOSS_NAMES[(level - 1) % BOSS_NAMES.length]
-  const maxHp = 100 + (level - 1) * 20
+  // Boss starts noticeably tankier than the player and scales up each level
+  const maxHp = 160 + (level - 1) * 35
   return { bossName: name, bossMaxHp: maxHp, bossHp: maxHp, bossLevel: level }
 }
 
@@ -226,9 +227,11 @@ function reducer(state: State, action: Action): State {
       if (state.lastCompletedDate === todayStr()) return state
       const newBossHp = clamp(state.bossHp - BOSS_DAMAGE, 0, state.bossMaxHp)
       const defeated = newBossHp <= 0
+      // Level ONLY increases when the boss is actually defeated — not from an XP threshold
       const newLevel = defeated ? state.level + 1 : state.level
       const newXp = state.xp + 80
-      const levelUp = newXp >= state.xpToNext
+      // XP bar is a visual progress tracker toward defeating the current boss, capped so it doesn't overflow
+      const cappedXp = Math.min(newXp, state.xpToNext)
       const today = new Date().getDay()
       const newWeek = [...state.weekActivity]
       if (today > 0) newWeek[today - 1] = true
@@ -237,9 +240,9 @@ function reducer(state: State, action: Action): State {
         ...state,
         ...bossData,
         bossHp: defeated ? (bossData as any).bossHp : newBossHp,
-        level: levelUp ? state.level + 1 : state.level,
-        xp: levelUp ? newXp - state.xpToNext : newXp,
-        xpToNext: levelUp ? state.xpToNext + 50 : state.xpToNext,
+        level: newLevel,
+        xp: defeated ? 0 : cappedXp,
+        xpToNext: defeated ? state.xpToNext + 60 : state.xpToNext,
         streak: state.streak + 1,
         totalWorkouts: state.totalWorkouts + 1,
         playerHp: clamp(state.playerHp + 6),
